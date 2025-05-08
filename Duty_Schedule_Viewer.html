@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duty Schedule Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .card {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 600px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    select {
+      font-size: 1.1rem;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #e7f3fe;
+      color: #333;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #d0e7ff;
+    }
+    .break {
+      color: #888;
+      font-style: italic;
+    }
+    .total {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #005a9c;
+    }
+    .disclaimer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+  <script>
+    const dutyData = {
+  "Tan Wee Yin": ["PAC", "VAC (Lane 5)", "Break", "PAC", "VAC (Lane 1)", "Break", "PAC", "VAC (Lane 6)"],
+  "Edumbaiyan Pugazhenthi": ["VAC (Lane 3)", "Break", "VAC (Lane 1)", "VAC (Lane 2)", "Break", "PAC", "VAC (Lane 6)", "Break"],
+  "Krishna Prasanna Baidya": ["Break", "PAC", "VAC (Lane 5)", "Break", "VAC (Lane 2)", "VAC (Lane 6)", "Break", "VAC (Lane 4)"],
+  "Megumi Nakazawa": ["VAC (Lane 2)", "Break", "PAC", "VAC (Lane 5)", "Break", "PAC", "VAC (Lane 1)", "Break"],
+  "Padgaonkar Rahul Shantaram": ["VAC (Lane 6)", "VAC (Lane 4)", "Break", "VAC (Lane 1)", "VAC (Lane 3)", "Break", "VAC (Lane 3)", "PAC"],
+  "Reshma Sherin Varghese": ["Break", "PAC", "VAC (Lane 4)", "Break", "PAC", "VAC (Lane 2)", "Break", "PAC"],
+  "Teo Sien Eing": ["PAC", "Break", "VAC (Lane 6)", "VAC (Lane 4)", "Break", "VAC (Lane 3)", "VAC (Lane 2)", "Break"],
+  "Tilak Raj Santhana Krishnan": ["Break", "VAC (Lane 6)", "VAC (Lane 3)", "Break", "VAC (Lane 4)", "VAC (Lane 5)", "Break", "VAC (Lane 2)"],
+  "Vaishnav Manish Ishwardas": ["VAC (Lane 4)", "VAC (Lane 2)", "Break", "VAC (Lane 3)", "VAC (Lane 5)", "Break", "PAC", "VAC (Lane 1)"],
+  "Vivek Rajpal": ["VAC (Lane 1)", "Break", "PAC", "VAC (Lane 6)", "Break", "VAC (Lane 4)", "VAC (Lane 5)", "Break"],
+  "Yao Xin": ["Break", "VAC (Lane 3)", "VAC (Lane 2)", "Break", "PAC", "VAC (Lane 1)", "Break", "VAC (Lane 5)"],
+  "Zhou Zehao": ["VAC (Lane 5)", "VAC (Lane 1)", "Break", "PAC", "VAC (Lane 6)", "Break", "VAC (Lane 4)", "VAC (Lane 3)"]
+};
+
+    const timeLabels = [
+      "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00",
+      "18:00-19:00", "19:00-20:00", "20:00-20:45", "20:45-21:30"
+    ];
+
+    function calculateTotalHours(shifts) {
+      const timeSlots = [
+        [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 20.75], [20.75, 21.5]
+      ];
+      let total = 0;
+      shifts.forEach((duty, i) => {
+        if (duty.toLowerCase() !== "break") {
+          const [start, end] = timeSlots[i];
+          total += end - start;
+        }
+      });
+      const hours = Math.floor(total);
+      const minutes = Math.round((total - hours) * 60);
+      return `${hours}h ${minutes}m`;
+    }
+
+    function showDuties() {
+      const name = document.getElementById("nameSelect").value;
+      const shifts = dutyData[name];
+      const scheduleDiv = document.getElementById("schedule");
+      scheduleDiv.innerHTML = "";
+
+      const table = document.createElement("table");
+      const header = document.createElement("tr");
+      header.innerHTML = "<th>Time</th><th>Duty</th>";
+      table.appendChild(header);
+
+      shifts.forEach((shift, index) => {
+        const row = document.createElement("tr");
+        const label = timeLabels[index];
+        const display = shift.toLowerCase() === "break" ? "Break" : shift;
+        const className = shift.toLowerCase() === "break" ? "break" : "";
+        row.innerHTML = `<td>${label}</td><td class="${className}">${display}</td>`;
+        table.appendChild(row);
+      });
+
+      scheduleDiv.appendChild(table);
+
+      const totalDiv = document.createElement("div");
+      totalDiv.className = "total";
+      totalDiv.textContent = `Total Duty Time: ${calculateTotalHours(shifts)}`;
+      scheduleDiv.appendChild(totalDiv);
+    }
+  </script>
+</head>
+<body>
+  <div class="card">
+    <h2>Duty Schedule Viewer - 8 May 2025</h2>
+    <label for="nameSelect">Select Name:</label>
+    <select id="nameSelect" onchange="showDuties()">
+      <option value="">--Select--</option>
+      <option value="Tan Wee Yin">Tan Wee Yin</option>
+      <option value="Edumbaiyan Pugazhenthi">Edumbaiyan Pugazhenthi</option>
+      <option value="Krishna Prasanna Baidya">Krishna Prasanna Baidya</option>
+      <option value="Megumi Nakazawa">Megumi Nakazawa</option>
+      <option value="Padgaonkar Rahul Shantaram">Padgaonkar Rahul Shantaram</option>
+      <option value="Reshma Sherin Varghese">Reshma Sherin Varghese</option>
+      <option value="Teo Sien Eing">Teo Sien Eing</option>
+      <option value="Tilak Raj Santhana Krishnan">Tilak Raj Santhana Krishnan</option>
+      <option value="Vaishnav Manish Ishwardas">Vaishnav Manish Ishwardas</option>
+      <option value="Vivek Rajpal">Vivek Rajpal</option>
+      <option value="Yao Xin">Yao Xin</option>
+      <option value="Zhou Zehao">Zhou Zehao</option>
+    </select>
+    <div id="schedule"></div>
+    <div class="disclaimer">
+      Disclaimer: This schedule has been prepared solely for easy viewing and operational checking. It does not include or reveal any confidential information such as identification numbers, gender, age, or location details.
+    </div>
+  </div>
+</body>
+</html>
